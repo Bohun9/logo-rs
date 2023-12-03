@@ -1,0 +1,46 @@
+WHITESPACE = _{ " " | NEWLINE }
+
+word = @{ ASCII_ALPHA+ }
+string = @{ "\"" ~ word }
+number = @{ "-"? ~ ("0" | (ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)) ~ ("." ~ ASCII_DIGIT+)? }
+identifier = @{ !keyword ~ word }
+variable = @{ ":" ~ identifier }
+keyword = _{ "to" | "end" | "if" | "repeat" }
+
+expr = _{ logic }
+
+logic_op = { "and" | "or" }
+logic = { comp ~ (logic_op ~ logic)? }
+
+comp_op = { "<" | ">" | "<=" | ">=" | "==" }
+comp = { add ~ (comp_op ~ comp)? }
+
+add_op = { "+" | "-" }
+add = { mult ~ (add_op ~ add)? }
+
+mult_op = { "*" | "/" }
+mult = { primary ~ (mult_op ~ mult)? }
+
+list = { "[" ~ word* ~ "]" }
+
+fn_identifier = { "random" | "pick" }
+fn_call = { fn_identifier ~ expr* }
+
+primary = _{ 
+      string
+    | variable
+    | number
+    | "(" ~ expr ~ ")"
+    | list
+    | fn_call
+}
+
+cond = { "if" ~ expr ~ "[" ~ block ~ "]" }
+repeat = { "repeat" ~ expr ~ "[" ~ block ~ "]" }
+proc_def = { "to" ~ identifier ~ variable* ~ block ~ "end" }
+call = { identifier ~ expr* }
+
+statement = _{ cond | repeat | proc_def | call }
+block = { statement* }
+
+program = _{ SOI ~ block ~ EOI }

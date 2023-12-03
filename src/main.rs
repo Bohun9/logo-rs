@@ -5,25 +5,26 @@ mod drawer;
 mod interpreter;
 mod parser;
 
-use drawer::{draw, DrawCmd};
+use drawer::draw;
 use interpreter::evaluate;
 use parser::parse_logo_file;
-use std::fs;
+use std::env;
+use std::process;
 
 fn main() {
-    let ast = parse_logo_file("input.logo").unwrap();
-    dbg!(&ast);
-    let cmds = evaluate(&ast);
-    // dbg!(&cmds);
-    draw("image.svg", cmds);
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 3 {
+        eprintln!("usage: {} <source> <destination>", args[0]);
+        process::exit(1);
+    }
 
-    // let cmds = vec![
-    //     DrawCmd::Forward(100.0),
-    //     DrawCmd::LeftTurn(90.0),
-    //     DrawCmd::Forward(100.0),
-    //     DrawCmd::RightTurn(45.0),
-    //     DrawCmd::SetColor("red".to_string()),
-    //     DrawCmd::Back(100.0),
-    // ];
-    // draw("image.svg", cmds);
+    let source = &args[1];
+    let destination = &args[2];
+
+    let ast = parse_logo_file(source).unwrap_or_else(|err| {
+        eprintln!("{}", err);
+        process::exit(1);
+    });
+    let cmds = evaluate(&ast);
+    draw(destination, cmds);
 }

@@ -191,4 +191,30 @@ mod tests {
         let ast = ast.unwrap();
         assert_eq!(evaluate(&ast), vec![DrawCmd::Forward(3.0)])
     }
+
+    #[test]
+    fn repeat_forward() {
+        let source = "repeat 4 [ forward 1 ]";
+        let ast = parse_logo_source(source);
+        assert!(ast.is_ok());
+        let ast = ast.unwrap();
+        assert_eq!(
+            evaluate(&ast),
+            vec![
+                DrawCmd::Forward(1.0),
+                DrawCmd::Forward(1.0),
+                DrawCmd::Forward(1.0),
+                DrawCmd::Forward(1.0)
+            ]
+        )
+    }
+
+    #[test]
+    fn procedure_with_stop() {
+        let source = "to proc :x if :x < 1 [ stop ] fd 1 end proc 0";
+        let ast = parse_logo_source(source);
+        assert!(ast.is_ok());
+        let ast = ast.unwrap();
+        assert_eq!(evaluate(&ast), vec![])
+    }
 }

@@ -3,6 +3,7 @@ use pest::iterators::Pair;
 use pest::Parser;
 use pest_derive::Parser;
 use std::fs;
+use std::process;
 
 #[derive(Parser)]
 #[grammar = "logo.pest"]
@@ -55,7 +56,10 @@ pub enum AstNode {
 }
 
 pub fn parse_logo_file(file: &str) -> Result<AstNode, Error<Rule>> {
-    let source = fs::read_to_string(file).unwrap();
+    let source = fs::read_to_string(file).unwrap_or_else(|err| {
+        eprintln!("{}", err);
+        process::exit(1);
+    });
     parse_logo_source(&source)
 }
 

@@ -166,6 +166,68 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
         },
     ));
 
+    fn penup_fn(inter: &mut Interpreter, args: Vec<Value>) -> Value {
+        assert_eq!(args.len(), 0);
+        inter.drawing.push(DrawCmd::PenUp);
+        Value::Nothing
+    }
+    builtins.push((
+        vec!["penup", "pu"],
+        LangFn {
+            arity: 0,
+            function: penup_fn,
+        },
+    ));
+
+    fn pendown_fn(inter: &mut Interpreter, args: Vec<Value>) -> Value {
+        assert_eq!(args.len(), 0);
+        inter.drawing.push(DrawCmd::PenDown);
+        Value::Nothing
+    }
+    builtins.push((
+        vec!["pendown", "pu"],
+        LangFn {
+            arity: 0,
+            function: pendown_fn,
+        },
+    ));
+
+    fn label_fn(inter: &mut Interpreter, args: Vec<Value>) -> Value {
+        assert_eq!(args.len(), 1);
+        match &args[0] {
+            Value::String(s) => {
+                inter.drawing.push(DrawCmd::Label(s.clone()));
+            }
+            _ => panic!(""),
+        }
+        Value::Nothing
+    }
+    builtins.push((
+        vec!["label"],
+        LangFn {
+            arity: 1,
+            function: label_fn,
+        },
+    ));
+
+    fn setfontsize_fn(inter: &mut Interpreter, args: Vec<Value>) -> Value {
+        assert_eq!(args.len(), 1);
+        match args[0] {
+            Value::Number(n) => {
+                inter.drawing.push(DrawCmd::SetFontSize(n));
+            }
+            _ => panic!(""),
+        }
+        Value::Nothing
+    }
+    builtins.push((
+        vec!["setfontsize"],
+        LangFn {
+            arity: 1,
+            function: setfontsize_fn,
+        },
+    ));
+
     builtins
         .into_iter()
         .map(|(n, f)| (n, Value::Function(LogoFn::LangFn(f))))

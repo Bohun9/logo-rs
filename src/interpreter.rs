@@ -133,10 +133,11 @@ impl Interpreter {
             AstNode::Loop { repeat, body } => {
                 let r = self.eval(repeat);
                 let saved = self.environment.get("repcount").cloned();
-                if let Value::Number(mut n) = r {
-                    while n > 0.0 {
+                if let Value::Number(n) = r {
+                    for i in 1..=(n as i32) {
+                        self.environment
+                            .insert("repcount".to_string(), Value::Number((i as f64).clone()));
                         self.eval(body);
-                        n -= 1.0;
                     }
                 } else {
                     panic!("repeat is not a number")

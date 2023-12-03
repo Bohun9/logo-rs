@@ -1,5 +1,5 @@
 use svg::node::element::path::Data;
-use svg::node::element::{Circle, Path, Rectangle};
+use svg::node::element::{Path, Rectangle, Text};
 use svg::Document;
 
 const IMG_WIDTH: i32 = 1920;
@@ -15,6 +15,10 @@ pub enum DrawCmd {
     RightTurn(f64),
     SetColor(String),
     ClearScreen,
+    PenUp,
+    PenDown,
+    Label(String),
+    SetFontSize(f64),
 }
 
 struct Turtle {
@@ -22,32 +26,24 @@ struct Turtle {
     y: f64,
     color: String,
     rotation: f64,
+    pendown: bool,
+    font_size: f64,
 }
 
-pub fn draw(destination: &str, cmds: Vec<DrawCmd>) {
+pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>) {
+    cmds.insert(0, DrawCmd::ClearScreen);
+
     let mut document = Document::new()
         .set("width", IMG_WIDTH)
-        .set("height", IMG_HEIGHT)
-        .add(
-            Rectangle::new()
-                .set("x", 0)
-                .set("y", 0)
-                .set("width", IMG_WIDTH)
-                .set("height", IMG_HEIGHT)
-                .set("fill", "white"),
-        )
-        .add(
-            Circle::new()
-                .set("cx", CENTER_X)
-                .set("cy", CENTER_Y)
-                .set("r", 2)
-                .set("fill", "red"),
-        );
+        .set("height", IMG_HEIGHT);
+
     let mut turtle = Turtle {
         x: 0.0,
         y: 0.0,
         color: "black".to_string(),
         rotation: std::f64::consts::PI / 2.0,
+        pendown: true,
+        font_size: 12.0,
     };
 
     fn move_forward(x: f64, turtle: &mut Turtle, mut document: Document) -> Document {
@@ -57,7 +53,9 @@ pub fn draw(destination: &str, cmds: Vec<DrawCmd>) {
             .move_to((CENTER_X as f64 + turtle.x, CENTER_Y as f64 + turtle.y))
             .line_by((dx, dy));
         let path = Path::new().set("d", data).set("stroke", &turtle.color[..]);
-        document = document.add(path);
+        if turtle.pendown {
+            document = document.add(path);
+        }
         turtle.x += dx;
         turtle.y += dy;
         document
@@ -80,7 +78,43 @@ pub fn draw(destination: &str, cmds: Vec<DrawCmd>) {
             DrawCmd::SetColor(c) => {
                 turtle.color = c;
             }
-            _ => {}
+            DrawCmd::PenUp => {
+                turtle.pendown = false;
+            }
+            DrawCmd::PenDown => {
+                turtle.pendown = true;
+            }
+            DrawCmd::Label(s) => {
+                document = document.add(
+                    Text::new()
+                        .set("x", CENTER_X as f64 + turtle.x)
+                        .set("y", CENTER_Y as f64 + turtle.y)
+                        .set("font-size", turtle.font_size)
+                        .set(
+                            "transform",
+                            format!(
+                                "rotate({} {} {})",
+                                -turtle.rotation * 180.0 / std::f64::consts::PI,
+                                CENTER_X as f64 + turtle.x,
+                                CENTER_Y as f64 + turtle.y
+                            ),
+                        )
+                        .add(svg::node::Text::new(&s)),
+                )
+            }
+            DrawCmd::SetFontSize(n) => {
+                turtle.font_size = n;
+            }
+            DrawCmd::ClearScreen => {
+                document = document.add(
+                    Rectangle::new()
+                        .set("x", 0)
+                        .set("y", 0)
+                        .set("width", IMG_WIDTH)
+                        .set("height", IMG_HEIGHT)
+                        .set("fill", "white"),
+                )
+            }
         }
     }
 

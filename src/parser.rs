@@ -37,7 +37,7 @@ pub enum AstNode {
     },
     Call {
         f: Box<AstNode>,
-        args: Vec<Box<AstNode>>,
+        args: Vec<AstNode>,
     },
     If {
         condition: Box<AstNode>,
@@ -52,7 +52,7 @@ pub enum AstNode {
         params: Vec<String>,
         body: Box<AstNode>,
     },
-    Block(Vec<Box<AstNode>>),
+    Block(Vec<AstNode>),
 }
 
 pub fn parse_logo_file(file: &str) -> Result<AstNode, Error<Rule>> {
@@ -121,7 +121,7 @@ pub fn parse_logo_source(source: &str) -> Result<AstNode, Error<Rule>> {
             Rule::call | Rule::fn_call => {
                 let mut ts = term.into_inner();
                 let f = Box::new(parse_term(ts.next().unwrap()));
-                let args: Vec<Box<AstNode>> = ts.map(|t| Box::new(parse_term(t))).collect();
+                let args: Vec<AstNode> = ts.map(|t| parse_term(t)).collect();
                 AstNode::Call { f, args }
             }
             Rule::cond => {
@@ -155,9 +155,7 @@ pub fn parse_logo_source(source: &str) -> Result<AstNode, Error<Rule>> {
                     body,
                 }
             }
-            Rule::block => {
-                AstNode::Block(term.into_inner().map(|t| Box::new(parse_term(t))).collect())
-            }
+            Rule::block => AstNode::Block(term.into_inner().map(|t| parse_term(t)).collect()),
             Rule::WHITESPACE
             | Rule::EOI
             | Rule::keyword
@@ -190,14 +188,14 @@ mod tests {
         let ast = ast.unwrap();
         assert_eq!(
             ast,
-            AstNode::Block(vec![Box::new(AstNode::Call {
+            AstNode::Block(vec![AstNode::Call {
                 f: Box::new(AstNode::Variable("print".to_string())),
-                args: vec![Box::new(AstNode::Binop {
+                args: vec![AstNode::Binop {
                     lhs: Box::new(AstNode::Number(1.0)),
                     op: Binop::Add,
                     rhs: Box::new(AstNode::Number(2.0))
-                })]
-            })])
+                }]
+            }])
         )
     }
 
@@ -209,9 +207,9 @@ mod tests {
         let ast = ast.unwrap();
         assert_eq!(
             ast,
-            AstNode::Block(vec![Box::new(AstNode::Call {
+            AstNode::Block(vec![AstNode::Call {
                 f: Box::new(AstNode::Variable("print".to_string())),
-                args: vec![Box::new(AstNode::Binop {
+                args: vec![AstNode::Binop {
                     lhs: Box::new(AstNode::Number(1.0)),
                     op: Binop::Add,
                     rhs: Box::new(AstNode::Binop {
@@ -219,8 +217,8 @@ mod tests {
                         op: Binop::Mul,
                         rhs: Box::new(AstNode::Number(3.0)),
                     })
-                })]
-            })])
+                }]
+            }])
         )
     }
 }

@@ -228,6 +228,24 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
         },
     ));
 
+    fn setturtle_fn(inter: &mut Interpreter, args: Vec<Value>) -> Value {
+        assert_eq!(args.len(), 1);
+        match args[0] {
+            Value::Number(n) => {
+                inter.drawing.push(DrawCmd::SetTurtle(n as i32));
+            }
+            _ => panic!("setturtle error"),
+        }
+        Value::Nothing
+    }
+    builtins.push((
+        vec!["setturtle"],
+        LangFn {
+            arity: 1,
+            function: setturtle_fn,
+        },
+    ));
+
     builtins
         .into_iter()
         .map(|(n, f)| (n, Value::Function(LogoFn::LangFn(f))))

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use svg::node::element::path::Data;
 use svg::node::element::{Path, Rectangle, Text};
 use svg::Document;
@@ -19,6 +20,7 @@ pub enum DrawCmd {
     PenDown,
     Label(String),
     SetFontSize(f64),
+    SetTurtle(i32),
 }
 
 struct Turtle {
@@ -37,14 +39,25 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>) {
         .set("width", IMG_WIDTH)
         .set("height", IMG_HEIGHT);
 
-    let mut turtle = Turtle {
-        x: 0.0,
-        y: 0.0,
-        color: "black".to_string(),
-        rotation: std::f64::consts::PI / 2.0,
-        pendown: true,
-        font_size: 12.0,
-    };
+    let mut turtles = HashMap::new();
+
+    fn create_turtle(turtles: &mut HashMap<i32, Turtle>, index: i32) {
+        turtles.insert(
+            index,
+            Turtle {
+                x: 0.0,
+                y: 0.0,
+                color: "black".to_string(),
+                rotation: std::f64::consts::PI / 2.0,
+                pendown: true,
+                font_size: 12.0,
+            },
+        );
+    }
+
+    create_turtle(&mut turtles, 1);
+
+    let mut turtle_idx = 1;
 
     fn move_forward(x: f64, turtle: &mut Turtle, mut document: Document) -> Document {
         let dx = x * f64::cos(turtle.rotation);
@@ -62,12 +75,14 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>) {
     }
 
     for cmd in cmds {
+        let turtle = turtles.get_mut(&turtle_idx).unwrap();
+
         match cmd {
             DrawCmd::Forward(x) => {
-                document = move_forward(x, &mut turtle, document);
+                document = move_forward(x, turtle, document);
             }
             DrawCmd::Back(x) => {
-                document = move_forward(-x, &mut turtle, document);
+                document = move_forward(-x, turtle, document);
             }
             DrawCmd::LeftTurn(d) => {
                 turtle.rotation += d * std::f64::consts::PI / 180.0;
@@ -115,13 +130,14 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>) {
                         .set("fill", "white"),
                 )
             }
+            DrawCmd::SetTurtle(idx) => {
+                if let None = turtles.get(&idx) {
+                    create_turtle(&mut turtles, idx);
+                }
+                turtle_idx = idx;
+            }
         }
     }
 
     svg::save(destination, &document).unwrap();
-
-    println!(
-        "turtle: ({} {}), rotation: {}",
-        turtle.x, turtle.y, turtle.rotation
-    );
 }

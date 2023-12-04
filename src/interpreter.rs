@@ -31,47 +31,47 @@ impl Interpreter {
         match op {
             Binop::And => match (v1, v2) {
                 (Value::Bool(b1), Value::Bool(b2)) => Value::Bool(b1 && b2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for &&"),
             },
             Binop::Or => match (v1, v2) {
                 (Value::Bool(b1), Value::Bool(b2)) => Value::Bool(b1 || b2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for ||"),
             },
             Binop::Less => match (v1, v2) {
                 (Value::Number(n1), Value::Number(n2)) => Value::Bool(n1 < n2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for <"),
             },
             Binop::LessEqual => match (v1, v2) {
                 (Value::Number(n1), Value::Number(n2)) => Value::Bool(n1 <= n2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for <="),
             },
             Binop::Greater => match (v1, v2) {
                 (Value::Number(n1), Value::Number(n2)) => Value::Bool(n1 > n2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for >"),
             },
             Binop::GreaterEqual => match (v1, v2) {
                 (Value::Number(n1), Value::Number(n2)) => Value::Bool(n1 >= n2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for >="),
             },
             Binop::EqualEqual => match (v1, v2) {
                 (Value::Number(n1), Value::Number(n2)) => Value::Bool(n1 == n2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for =="),
             },
             Binop::Add => match (v1, v2) {
                 (Value::Number(b1), Value::Number(b2)) => Value::Number(b1 + b2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for +"),
             },
             Binop::Sub => match (v1, v2) {
                 (Value::Number(b1), Value::Number(b2)) => Value::Number(b1 - b2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for -"),
             },
             Binop::Mul => match (v1, v2) {
                 (Value::Number(b1), Value::Number(b2)) => Value::Number(b1 * b2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for *"),
             },
             Binop::Div => match (v1, v2) {
                 (Value::Number(b1), Value::Number(b2)) => Value::Number(b1 / b2),
-                (_, _) => panic!(""),
+                (_, _) => panic!("bad operand type for /"),
             },
         }
     }
@@ -82,7 +82,7 @@ impl Interpreter {
             AstNode::Number(n) => Value::Number(n.clone()),
             AstNode::Variable(x) => match self.environment.get(&x[..]) {
                 Some(v) => (*v).clone(),
-                None => panic!("unbound variable {:#?}", &x),
+                None => panic!("unbound variable {}", &x),
             },
             AstNode::List(elems) => {
                 Value::List(elems.iter().map(|e| self.eval(e)).collect::<Vec<_>>())
@@ -96,29 +96,39 @@ impl Interpreter {
                 let f = self.eval(&f);
                 let args: Vec<Value> = args.iter().map(|a| self.eval(&a)).collect();
                 match f {
-                    Value::Function(f) => match f {
-                        LogoFn::LangFn(f) => match f {
-                            LangFn { arity, function } => function(self, args),
-                        },
-                        LogoFn::UserFn(f) => match f {
-                            UserFn { params, body } => {
-                                if args.len() != params.len() {
-                                    panic!("number of args is different than number of params")
-                                } else {
-                                    let saved: Vec<(String, Option<Value>)> = zip(params, args)
-                                        .map(|(x, v)| (x.clone(), self.environment.insert(x, v)))
-                                        .collect();
-                                    self.eval(&body);
-                                    saved.into_iter().for_each(|(x, v)| {
-                                        if let Some(v) = v {
-                                            self.environment.insert(x, v);
-                                        }
-                                    });
-                                    Value::Nothing
+                    Value::Function(f) => {
+                        match f {
+                            LogoFn::LangFn(f) => match f {
+                                LangFn { arity, function } => {
+                                    if args.len() == arity {
+                                        function(self, args)
+                                    } else {
+                                        panic!("the number of args is different than the number of params")
+                                    }
                                 }
-                            }
-                        },
-                    },
+                            },
+                            LogoFn::UserFn(f) => match f {
+                                UserFn { params, body } => {
+                                    if args.len() == params.len() {
+                                        let saved: Vec<(String, Option<Value>)> = zip(params, args)
+                                            .map(|(x, v)| {
+                                                (x.clone(), self.environment.insert(x, v))
+                                            })
+                                            .collect();
+                                        self.eval(&body);
+                                        saved.into_iter().for_each(|(x, v)| {
+                                            if let Some(v) = v {
+                                                self.environment.insert(x, v);
+                                            }
+                                        });
+                                        Value::Nothing
+                                    } else {
+                                        panic!("the number of args is different than the number of params")
+                                    }
+                                }
+                            },
+                        }
+                    }
                     _ => panic!("can only call functions"),
                 }
             }

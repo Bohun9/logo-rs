@@ -167,7 +167,6 @@ pub fn parse_logo_source(source: &str) -> Result<AstNode, Error<Rule>> {
             | Rule::mult_op
             | Rule::primary
             | Rule::program => {
-                dbg!(&term);
                 unreachable!()
             }
         }

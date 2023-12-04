@@ -3,7 +3,7 @@ pub use super::Interpreter;
 
 #[derive(Clone, Debug)]
 pub struct LangFn {
-    pub arity: u8,
+    pub arity: usize,
     pub function: fn(&mut Interpreter, Vec<Value>) -> Value,
 }
 

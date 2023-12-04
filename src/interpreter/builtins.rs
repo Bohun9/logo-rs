@@ -11,7 +11,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
             Value::Number(n) => {
                 inter.drawing.push(DrawCmd::Forward(n));
             }
-            _ => panic!(""),
+            _ => panic!("forward error"),
         }
         Value::Nothing
     }
@@ -29,7 +29,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
             Value::Number(n) => {
                 inter.drawing.push(DrawCmd::Back(n));
             }
-            _ => panic!(""),
+            _ => panic!("back error"),
         }
         Value::Nothing
     }
@@ -47,7 +47,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
             Value::Number(n) => {
                 inter.drawing.push(DrawCmd::LeftTurn(n));
             }
-            _ => panic!(""),
+            _ => panic!("leftturn error"),
         }
         Value::Nothing
     }
@@ -65,7 +65,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
             Value::Number(n) => {
                 inter.drawing.push(DrawCmd::RightTurn(n));
             }
-            _ => panic!(""),
+            _ => panic!("rightturn error"),
         }
         Value::Nothing
     }
@@ -85,7 +85,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
                 | "brown" | "tan" | "aqua" | "salmo" | "purple" | "orange" | "gray" | "violet" => {
                     inter.drawing.push(DrawCmd::SetColor(s.clone()));
                 }
-                _ => panic!(""),
+                _ => panic!("setcolor error"),
             },
             _ => panic!(""),
         }
@@ -125,7 +125,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
                     v
                 }
             }
-            _ => panic!(""),
+            _ => panic!("pick error"),
         }
     }
     builtins.push((
@@ -143,7 +143,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
                 let mut rng = rand::thread_rng();
                 Value::Number(rng.gen_range(0..(n as i32)) as f64)
             }
-            _ => panic!(""),
+            _ => panic!("random error"),
         }
     }
     builtins.push((
@@ -198,7 +198,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
             Value::String(s) => {
                 inter.drawing.push(DrawCmd::Label(s.clone()));
             }
-            _ => panic!(""),
+            _ => panic!("label error"),
         }
         Value::Nothing
     }
@@ -216,7 +216,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
             Value::Number(n) => {
                 inter.drawing.push(DrawCmd::SetFontSize(n));
             }
-            _ => panic!(""),
+            _ => panic!("setfontsize error"),
         }
         Value::Nothing
     }

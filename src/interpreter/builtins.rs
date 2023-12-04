@@ -17,7 +17,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["forward", "fd"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: forward_fn,
         },
@@ -35,7 +35,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["back", "bk"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: back_fn,
         },
@@ -53,7 +53,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["left", "lt"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: leftturn_fn,
         },
@@ -71,7 +71,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["right", "rt"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: rightturn_fn,
         },
@@ -89,7 +89,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["setcolor"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: setcolor_fn,
         },
@@ -102,7 +102,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["clearscreen", "cs"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 0,
             function: clearscreen_fn,
         },
@@ -126,7 +126,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["pick"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: pick_fn,
         },
@@ -144,7 +144,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["random"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: random_fn,
         },
@@ -156,7 +156,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["stop"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 0,
             function: stop_fn,
         },
@@ -169,7 +169,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["penup", "pu"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 0,
             function: penup_fn,
         },
@@ -182,7 +182,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["pendown", "pd"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 0,
             function: pendown_fn,
         },
@@ -200,7 +200,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["label"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: label_fn,
         },
@@ -218,7 +218,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["setfontsize"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: setfontsize_fn,
         },
@@ -236,7 +236,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     }
     builtins.push((
         vec!["setturtle"],
-        LangFn {
+        LogoFn::LangFn {
             arity: 1,
             function: setturtle_fn,
         },
@@ -244,6 +244,6 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
 
     builtins
         .into_iter()
-        .map(|(n, f)| (n, Value::Function(LogoFn::LangFn(f))))
+        .map(|(n, f)| (n, Value::Function(f)))
         .collect()
 }

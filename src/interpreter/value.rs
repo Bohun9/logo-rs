@@ -2,25 +2,15 @@ pub use super::super::parser::AstNode;
 pub use super::Interpreter;
 
 #[derive(Clone, Debug)]
-pub struct LangFn {
-    pub arity: usize,
-    pub function: fn(&mut Interpreter, Vec<Value>) -> Value,
-}
-
-#[derive(Clone, Debug)]
-pub struct UserFn {
-    pub params: Vec<String>,
-    pub body: AstNode,
-}
-
-impl UserFn {
-    fn call(&self, args: Vec<Value>) {}
-}
-
-#[derive(Clone, Debug)]
 pub enum LogoFn {
-    LangFn(LangFn),
-    UserFn(UserFn),
+    LangFn {
+        arity: usize,
+        function: fn(&mut Interpreter, Vec<Value>) -> Value,
+    },
+    UserFn {
+        params: Vec<String>,
+        body: AstNode,
+    },
 }
 
 #[derive(Clone, Debug)]

@@ -96,39 +96,31 @@ impl Interpreter {
                 let f = self.eval(&f);
                 let args: Vec<Value> = args.iter().map(|a| self.eval(&a)).collect();
                 match f {
-                    Value::Function(f) => {
-                        match f {
-                            LogoFn::LangFn(f) => match f {
-                                LangFn { arity, function } => {
-                                    if args.len() == arity {
-                                        function(self, args)
-                                    } else {
-                                        panic!("the number of args is different than the number of params")
-                                    }
-                                }
-                            },
-                            LogoFn::UserFn(f) => match f {
-                                UserFn { params, body } => {
-                                    if args.len() == params.len() {
-                                        let saved: Vec<(String, Option<Value>)> = zip(params, args)
-                                            .map(|(x, v)| {
-                                                (x.clone(), self.environment.insert(x, v))
-                                            })
-                                            .collect();
-                                        self.eval(&body);
-                                        saved.into_iter().for_each(|(x, v)| {
-                                            if let Some(v) = v {
-                                                self.environment.insert(x, v);
-                                            }
-                                        });
-                                        Value::Nothing
-                                    } else {
-                                        panic!("the number of args is different than the number of params")
-                                    }
-                                }
-                            },
+                    Value::Function(f) => match f {
+                        LogoFn::LangFn { arity, function } => {
+                            if args.len() == arity {
+                                function(self, args)
+                            } else {
+                                panic!("the number of args is different than the number of params")
+                            }
                         }
-                    }
+                        LogoFn::UserFn { params, body } => {
+                            if args.len() == params.len() {
+                                let saved: Vec<(String, Option<Value>)> = zip(params, args)
+                                    .map(|(x, v)| (x.clone(), self.environment.insert(x, v)))
+                                    .collect();
+                                self.eval(&body);
+                                saved.into_iter().for_each(|(x, v)| {
+                                    if let Some(v) = v {
+                                        self.environment.insert(x, v);
+                                    }
+                                });
+                                Value::Nothing
+                            } else {
+                                panic!("the number of args is different than the number of params")
+                            }
+                        }
+                    },
                     _ => panic!("can only call functions"),
                 }
             }
@@ -162,10 +154,10 @@ impl Interpreter {
                 params,
                 body,
             } => {
-                let f = Value::Function(LogoFn::UserFn(UserFn {
+                let f = Value::Function(LogoFn::UserFn {
                     params: params.clone(),
                     body: (**body).clone(),
-                }));
+                });
                 self.environment.insert((*proc_name).clone(), f);
                 Value::Nothing
             }

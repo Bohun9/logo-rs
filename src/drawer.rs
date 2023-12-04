@@ -55,7 +55,7 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>, img_width: u32, img_heigh
 
     create_turtle(&mut turtles, 1);
 
-    let mut turtle_idx = 1;
+    let mut turtle = turtles.get_mut(&1).unwrap();
 
     let move_forward = |x: f64, turtle: &mut Turtle, mut document: Document| {
         let dx = x * f64::cos(turtle.rotation);
@@ -73,8 +73,6 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>, img_width: u32, img_heigh
     };
 
     for cmd in cmds {
-        let turtle = turtles.get_mut(&turtle_idx).unwrap();
-
         match cmd {
             DrawCmd::Forward(x) => {
                 document = move_forward(x, turtle, document);
@@ -132,7 +130,7 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>, img_width: u32, img_heigh
                 if let None = turtles.get(&idx) {
                     create_turtle(&mut turtles, idx);
                 }
-                turtle_idx = idx;
+                turtle = turtles.get_mut(&idx).unwrap();
             }
         }
     }

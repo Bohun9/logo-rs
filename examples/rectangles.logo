@@ -1,0 +1,7 @@
+to square :length
+    repeat 4 [ fd :length rt 90 ]
+end
+to randomcolor
+    setcolor pick [ black red orange yellow green blue violet ]
+end
+repeat 36 [ randomcolor square random 400 rt 10 ]

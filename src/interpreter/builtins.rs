@@ -80,14 +80,10 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
     fn setcolor_fn(inter: &mut Interpreter, args: Vec<Value>) -> Value {
         assert_eq!(args.len(), 1);
         match &args[0] {
-            Value::String(s) => match &s[..] {
-                "black" | "blue" | "green" | "cyan" | "red" | "magenta" | "yellow" | "white"
-                | "brown" | "tan" | "aqua" | "salmo" | "purple" | "orange" | "gray" | "violet" => {
-                    inter.drawing.push(DrawCmd::SetColor(s.clone()));
-                }
-                _ => panic!("setcolor error"),
-            },
-            _ => panic!(""),
+            Value::String(s) => {
+                inter.drawing.push(DrawCmd::SetColor(s.clone()));
+            }
+            _ => panic!("setcolor error"),
         }
         Value::Nothing
     }
@@ -185,7 +181,7 @@ pub fn get_builtins() -> Vec<(Vec<&'static str>, Value)> {
         Value::Nothing
     }
     builtins.push((
-        vec!["pendown", "pu"],
+        vec!["pendown", "pd"],
         LangFn {
             arity: 0,
             function: pendown_fn,

@@ -1,0 +1,9 @@
+repeat 144 [
+    setfontsize repcount
+    penup
+    fd repcount * repcount / 30
+    label "Logo
+    bk repcount * repcount / 30
+    pendown
+    rt 10
+]

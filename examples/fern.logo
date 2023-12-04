@@ -8,4 +8,4 @@ to fern :size :sign
     bk :size * 2
 end
 pu bk 400 lt 90 fd 300 rt 90 pd
-fern 40 1
+fern 20 1

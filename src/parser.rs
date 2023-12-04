@@ -55,12 +55,15 @@ pub enum AstNode {
     Block(Vec<AstNode>),
 }
 
-pub fn parse_logo_file(file: &str) -> Result<AstNode, Error<Rule>> {
+pub fn parse_logo_file(file: &str) -> AstNode {
     let source = fs::read_to_string(file).unwrap_or_else(|err| {
         eprintln!("{}", err);
         process::exit(1);
     });
-    parse_logo_source(&source)
+    parse_logo_source(&source).unwrap_or_else(|err| {
+        eprintln!("{}", err);
+        process::exit(1);
+    })
 }
 
 pub fn parse_logo_source(source: &str) -> Result<AstNode, Error<Rule>> {
@@ -81,7 +84,7 @@ pub fn parse_logo_source(source: &str) -> Result<AstNode, Error<Rule>> {
                 "<=" => Binop::LessEqual,
                 ">" => Binop::Greater,
                 ">=" => Binop::GreaterEqual,
-                "==" => Binop::GreaterEqual,
+                "==" => Binop::EqualEqual,
                 "+" => Binop::Add,
                 "-" => Binop::Sub,
                 "*" => Binop::Mul,
@@ -112,10 +115,7 @@ pub fn parse_logo_source(source: &str) -> Result<AstNode, Error<Rule>> {
             Rule::word => AstNode::String(term.as_str().to_string()),
             Rule::string => AstNode::String(term.as_str()[1..].to_string()),
             Rule::identifier | Rule::fn_identifier => AstNode::Variable(term.as_str().to_string()),
-            Rule::variable => match term.as_str().chars().next().unwrap() {
-                ':' => AstNode::Variable(term.as_str()[1..].to_string()),
-                _ => AstNode::Variable(term.as_str()[..].to_string()),
-            },
+            Rule::variable => AstNode::Variable(term.as_str()[1..].to_string()),
             Rule::logic | Rule::comp | Rule::add | Rule::mult => parse_binop(term),
             Rule::list => AstNode::List(term.into_inner().map(|t| parse_term(t)).collect()),
             Rule::proc_call | Rule::fn_call => {

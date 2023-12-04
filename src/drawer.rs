@@ -3,11 +3,6 @@ use svg::node::element::path::Data;
 use svg::node::element::{Path, Rectangle, Text};
 use svg::Document;
 
-const IMG_WIDTH: i32 = 1920;
-const IMG_HEIGHT: i32 = 1080;
-const CENTER_X: i32 = IMG_WIDTH / 2;
-const CENTER_Y: i32 = IMG_HEIGHT / 2;
-
 #[derive(Debug, PartialEq)]
 pub enum DrawCmd {
     Forward(f64),
@@ -32,12 +27,15 @@ struct Turtle {
     font_size: f64,
 }
 
-pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>) {
+pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>, img_width: u32, img_height: u32) {
+    let center_x = img_width / 2;
+    let center_y = img_height / 2;
+
     cmds.insert(0, DrawCmd::ClearScreen);
 
     let mut document = Document::new()
-        .set("width", IMG_WIDTH)
-        .set("height", IMG_HEIGHT);
+        .set("width", img_width)
+        .set("height", img_height);
 
     let mut turtles = HashMap::new();
 
@@ -59,11 +57,11 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>) {
 
     let mut turtle_idx = 1;
 
-    fn move_forward(x: f64, turtle: &mut Turtle, mut document: Document) -> Document {
+    let move_forward = |x: f64, turtle: &mut Turtle, mut document: Document| {
         let dx = x * f64::cos(turtle.rotation);
         let dy = x * -f64::sin(turtle.rotation);
         let data = Data::new()
-            .move_to((CENTER_X as f64 + turtle.x, CENTER_Y as f64 + turtle.y))
+            .move_to((center_x as f64 + turtle.x, center_y as f64 + turtle.y))
             .line_by((dx, dy));
         let path = Path::new().set("d", data).set("stroke", &turtle.color[..]);
         if turtle.pendown {
@@ -72,7 +70,7 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>) {
         turtle.x += dx;
         turtle.y += dy;
         document
-    }
+    };
 
     for cmd in cmds {
         let turtle = turtles.get_mut(&turtle_idx).unwrap();
@@ -102,16 +100,16 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>) {
             DrawCmd::Label(s) => {
                 document = document.add(
                     Text::new()
-                        .set("x", CENTER_X as f64 + turtle.x)
-                        .set("y", CENTER_Y as f64 + turtle.y)
+                        .set("x", center_x as f64 + turtle.x)
+                        .set("y", center_y as f64 + turtle.y)
                         .set("font-size", turtle.font_size)
                         .set(
                             "transform",
                             format!(
                                 "rotate({} {} {})",
                                 -turtle.rotation * 180.0 / std::f64::consts::PI,
-                                CENTER_X as f64 + turtle.x,
-                                CENTER_Y as f64 + turtle.y
+                                center_x as f64 + turtle.x,
+                                center_y as f64 + turtle.y
                             ),
                         )
                         .add(svg::node::Text::new(&s)),
@@ -125,8 +123,8 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>) {
                     Rectangle::new()
                         .set("x", 0)
                         .set("y", 0)
-                        .set("width", IMG_WIDTH)
-                        .set("height", IMG_HEIGHT)
+                        .set("width", img_width)
+                        .set("height", img_height)
                         .set("fill", "white"),
                 )
             }

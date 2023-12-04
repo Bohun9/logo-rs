@@ -4,7 +4,7 @@ word = @{ ASCII_ALPHA+ }
 string = @{ "\"" ~ word }
 number = @{ "-"? ~ ("0" | (ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)) ~ ("." ~ ASCII_DIGIT+)? }
 identifier = @{ !keyword ~ word }
-variable = @{ (":" ~ identifier) | "repcount" }
+variable = @{ ":" ~ identifier }
 keyword = _{ "to" | "end" | "if" | "repeat" }
 
 expr = _{ logic }

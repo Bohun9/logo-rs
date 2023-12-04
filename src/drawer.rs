@@ -57,9 +57,9 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>, img_width: u32, img_heigh
 
     let mut turtle = turtles.get_mut(&1).unwrap();
 
-    let move_forward = |x: f64, turtle: &mut Turtle, mut document: Document| {
-        let dx = x * f64::cos(turtle.rotation);
-        let dy = x * -f64::sin(turtle.rotation);
+    let move_forward = |u: f64, turtle: &mut Turtle, mut document: Document| {
+        let dx = u * f64::cos(turtle.rotation);
+        let dy = u * -f64::sin(turtle.rotation);
         let data = Data::new()
             .move_to((center_x as f64 + turtle.x, center_y as f64 + turtle.y))
             .line_by((dx, dy));
@@ -74,11 +74,11 @@ pub fn draw(destination: &str, mut cmds: Vec<DrawCmd>, img_width: u32, img_heigh
 
     for cmd in cmds {
         match cmd {
-            DrawCmd::Forward(x) => {
-                document = move_forward(x, turtle, document);
+            DrawCmd::Forward(u) => {
+                document = move_forward(u, turtle, document);
             }
-            DrawCmd::Back(x) => {
-                document = move_forward(-x, turtle, document);
+            DrawCmd::Back(u) => {
+                document = move_forward(-u, turtle, document);
             }
             DrawCmd::LeftTurn(d) => {
                 turtle.rotation += d * std::f64::consts::PI / 180.0;

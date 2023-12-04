@@ -38,9 +38,9 @@ primary = _{
 cond = { "if" ~ expr ~ "[" ~ block ~ "]" }
 repeat = { "repeat" ~ expr ~ "[" ~ block ~ "]" }
 proc_def = { "to" ~ identifier ~ variable* ~ block ~ "end" }
-call = { identifier ~ expr* }
+proc_call = { identifier ~ expr* }
 
-statement = _{ cond | repeat | proc_def | call }
+statement = _{ cond | repeat | proc_def | proc_call }
 block = { statement* }
 
 program = _{ SOI ~ block ~ EOI }

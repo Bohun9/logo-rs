@@ -118,7 +118,7 @@ pub fn parse_logo_source(source: &str) -> Result<AstNode, Error<Rule>> {
             },
             Rule::logic | Rule::comp | Rule::add | Rule::mult => parse_binop(term),
             Rule::list => AstNode::List(term.into_inner().map(|t| parse_term(t)).collect()),
-            Rule::call | Rule::fn_call => {
+            Rule::proc_call | Rule::fn_call => {
                 let mut ts = term.into_inner();
                 let f = Box::new(parse_term(ts.next().unwrap()));
                 let args: Vec<AstNode> = ts.map(|t| parse_term(t)).collect();
